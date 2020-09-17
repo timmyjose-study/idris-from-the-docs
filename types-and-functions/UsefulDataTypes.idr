@@ -112,3 +112,31 @@ adam : Employee
 adam = MkEmployee (MkName "Adam" "Xavier" "Leboy") 42 "Maintenance"
 
 -- dependent records
+
+record Prod a b where
+  constructor Times
+  fst : a
+  snd : b
+
+record SizedClass (size : Nat) where
+  constructor SizedClassInfo
+  students : Vect size Person
+  className : String
+
+addStudent'' : Person -> SizedClass n -> SizedClass (S n)
+addStudent'' p c = record { students $= (p :: ) } c
+
+record MyDPair a b where
+  constructor MkMyDPair
+  fst : a
+  snd : b
+
+cons : t -> (x : Nat ** Vect x t) -> (x : Nat ** Vect x t)
+cons val xs = record { fst = S (fst xs), snd = (val :: snd xs) } xs
+
+cons' : t -> (x : Nat ** Vect x t) -> (x : Nat ** Vect x t)
+cons' val = record { fst $= S, snd $= (val ::) }
+
+-- alpha substitution (?)
+cons'' : t -> (x : Nat ** Vect x t) -> (y : Nat ** Vect y t)
+cons'' val = record { fst $= S, snd $= (val ::) }
