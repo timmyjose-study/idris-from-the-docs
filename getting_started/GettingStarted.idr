@@ -1,0 +1,4 @@
+module GettingStarted 
+
+%default total
+
