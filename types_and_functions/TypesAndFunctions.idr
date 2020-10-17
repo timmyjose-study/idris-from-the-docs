@@ -1,5 +1,7 @@
 module TypesAndFunctions
 
+import Data.Vect
+
 %default total
 
 -- data types
@@ -106,3 +108,106 @@ mutual
   myodd : Nat -> Bool
   myodd Z = False
   myodd (S k) = myeven k
+
+greet : HasIO io => io ()
+greet = do putStr "What is your name? "
+           name <- getLine
+           putStrLn $ "Nice to meet you, " ++ name
+
+-- laziness
+{-
+  data Lazy : Type -> Type where
+    Delay : (val : a) -> Lazy a
+
+  Force : Lazy a -> a
+-}
+
+myIfThenElse : Bool -> Lazy a -> Lazy a -> a
+myIfThenElse True t e = t
+myIfThenElse False t e = e
+
+-- infinite data types (codata)
+
+{-
+  data Stream : Type -> Type where
+    (::) : (e : a) -> Inf (Stream a) -> Stream a
+-}
+
+ones : Stream Nat
+ones = 1 :: ones
+
+-- useful data types
+
+{-
+  data List a = Nil | (::) a (List a)
+
+  data Vect : Nat -> Type -> Type where
+    Nil : Vect Z a
+    (::) : a -> Vect k a -> Vect (S k) a
+-}
+
+{-
+  map : (a -> b) -> List a -> List b
+  map _ [] = []
+  map f (x :: xs) = f x :: map f xs
+
+  map : (a -> b) -> Vect n a -> Vect n b
+  map _ [] = []
+  map f (x :: xs) = f x :: map f xs
+-}
+
+intVec : Vect 5 Int
+intVec = [1, 2, 3, 4, 5]
+
+double : Int -> Int
+double x = x + x
+
+listLookup : Nat -> List a -> Maybe a
+listLookup _ [] = Nothing
+listLookup Z (x :: _) = Just x
+listLookup (S k) (_ :: xs) = listLookup k xs
+
+-- tuples
+
+{-
+  data Pair : Type -> Type -> Type where
+    MkPair : a -> b -> Pair a b
+-}
+
+fred : (String, Nat)
+fred = ("Fred", 42)
+
+jim : (String, Int, String)
+jim = ("Jim", 25, "Cambridge")
+
+-- dependent pairs (Signma Types)
+
+{-
+  data DPair : (a : Type) -> (p : a -> Type) -> Type where
+    MkDPair : {p : a -> Type} -> (x : a) -> p x -> DPair a p
+-}
+
+data DepPair : (a : Type) -> (p : a -> Type) -> Type where
+  MkDepPair : { p : a -> Type } -> (x : a) -> p x -> DepPair a p
+
+vec : (n : Nat ** Vect n Int)
+vec = (3 ** [1, 2, 3])
+
+vec1 : DPair Nat (\n => Vect n Int)
+vec1 = MkDPair 3 [1, 2, 3]
+
+vec2 : DepPair Nat (\n => Vect n Int)
+vec2 = MkDepPair 3 [1, 2, 3]
+
+vec3 : (n : Nat ** Vect n String)
+vec3 = (_ ** ["Hello", "world"])
+
+vec4 : (n ** Vect n Double)
+vec4 = (_ ** [1.0, 2.2, -2.1212])
+
+vFilter : (a -> Bool) -> Vect n a -> (p : Nat ** Vect p a)
+vFilter p [] = (0 ** [])
+vFilter p (x :: xs) = case p x of
+                           False => vFilter p xs
+                           True => let (_ ** res) = vFilter p xs in
+                                       (_ ** (x :: res))
