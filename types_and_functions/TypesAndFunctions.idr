@@ -1,5 +1,7 @@
 module TypesAndFunctions
 
+import Data.List
+import Data.Strings
 import Data.Vect
 
 %default total
@@ -211,3 +213,27 @@ vFilter p (x :: xs) = case p x of
                            False => vFilter p xs
                            True => let (_ ** res) = vFilter p xs in
                                        (_ ** (x :: res))
+
+-- let bindings
+
+mirror : List a -> List a
+mirror xs = let xs' = reverse xs in
+                 xs ++ xs'
+
+data Person = MkPerson String Int
+
+showPerson : Person -> String
+showPerson p = let MkPerson name age = p in
+                   name ++ " is " ++ show age ++ " years old"
+
+-- list comprehensions
+
+pythag : Int -> List (Int, Int, Int)
+pythag n = [(x, y, z) | z <- [1..n], y <- [1..z], x <- [1..y], x * x + y * y == z * z]
+
+-- case expressions
+
+partial
+mySplitAt : Char -> String -> (String, String)
+mySplitAt c cs = case break (== c) cs of
+                      (h, t) => (h, strTail t)
