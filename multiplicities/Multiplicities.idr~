@@ -1,0 +1,17 @@
+module Multiplicities
+
+import Data.Vect
+
+append : Vect n a -> Vect m a -> Vect (n + m) a
+append [] ys = ys
+append (x :: xs) ys = x :: append xs ys
+
+{-
+  Idris is based on QTT, which uses Linear Logic. As such, Idris supports three levels of "multiplicities":
+    - 0 meaning that the value is erased at runtime (this applies to implicits as well)
+    - 1 meaning that the value is consumed exactly once at runtime, and
+    - no multiplicity annotation, meaning unrestrained multiplicity.
+-}
+
+appendExplicit : { 0 n : Nat } -> { 0 m : Nat } -> Vect n a -> Vect m a -> Vect (n + m) a
+appendExplicit xs ys = ?foo
