@@ -1,0 +1,6 @@
+package calc
+
+modules = Calc.Add,
+          Calc.Sub,
+          Calc.Mul,
+          Calc.Div
