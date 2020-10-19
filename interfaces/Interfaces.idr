@@ -119,3 +119,53 @@ readNumbersBetter = do Just n <- readNumber
                        Just m <- readNumber
                         | Nothing => pure Nothing
                        pure $ Just (n, m)
+                       
+{-
+  (!) : m a -> a
+
+-}
+
+mAddBetter : Maybe Int -> Maybe Int -> Maybe Int
+mAddBetter mx my = pure (!mx + !my)
+
+-- monad comprehensions - can be used for any type that implements both Monad and Alterantive.
+
+{-
+  interface Applicative f => Alternative f where
+    empty : f a
+    (<|>) : f a -> f a -> f a
+-}
+
+mAddAgain : Maybe Int -> Maybe Int -> Maybe Int
+mAddAgain mx my = [x + y | x <- mx, y <- my]
+
+{-
+  interface Monad io => HasIO io where
+    liftIO : (1 _ : IO a) -> io a
+-}
+
+-- idiom brackets
+
+{-
+  [| f a1 a2 .. an |] == pure f <*> a1 <*> a2 <*> ... <*> an
+-}
+
+applicativeAdd : Maybe Int -> Maybe Int -> Maybe Int
+applicativeAdd mx my = pure (+) <*> mx <*> my
+
+-- this can now be rewritten as
+
+applicativeAddBetter : Maybe Int -> Maybe Int -> Maybe Int
+applicativeAddBetter mx my = [| mx + my |]
+
+{-
+  Determining Parameters: When an interface has multiple parameters, but only some of the parameters are used to find implementations, we can mark with using
+  the `| m` notation. For example,
+
+  interface Monad m => MonadState s (m : Type -> Type) | m where
+    get : m s
+    pur : s -> m ()
+
+  In the interface above, only `m` needs to be known in order to determine concrete implementations for `MonadState` without any dependency on `s`. Hence we mark
+  `m` as the dependent parameter using `| m` in the interface definition.
+-}
